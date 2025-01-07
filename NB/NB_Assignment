@@ -1,0 +1,150 @@
+#### Problem Statement 1) 
+Prepare a classification model using the Naive Bayes algorithm for the salary dataset. Train and test datasets are given separately. Use both for model building.
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+# Load the datasets
+train_data = pd.read_csv('SalaryData_Train.csv')
+test_data = pd.read_csv('SalaryData_Test.csv')
+
+# Check for missing values in the data (optional step)
+print(train_data.isnull().sum())
+print(test_data.isnull().sum())
+
+# Drop any rows with missing values if necessary (optional)
+train_data = train_data.dropna()
+test_data = test_data.dropna()
+
+# Separate features and target in training data
+X_train = train_data.drop('Salary', axis=1)
+y_train = train_data['Salary']
+
+# Similarly, for test data
+X_test = test_data.drop('Salary', axis=1)
+y_test = test_data['Salary']
+
+# Encode categorical variables if present
+label_encoders = {}
+for column in X_train.columns:
+    if X_train[column].dtype == 'object':
+        le = LabelEncoder()
+        X_train[column] = le.fit_transform(X_train[column])
+        X_test[column] = le.transform(X_test[column])
+        label_encoders[column] = le
+
+# Encode the target column
+y_le = LabelEncoder()
+y_train = y_le.fit_transform(y_train)
+y_test = y_le.transform(y_test)
+# Initialize and train the Naive Bayes classifier
+nb_classifier = GaussianNB()
+nb_classifier.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = nb_classifier.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy * 100:.2f}%')
+
+# Print the classification report and confusion matrix
+print("Classification Report:\n", classification_report(y_test, y_pred))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
+#### Problem Statement 2)
+This dataset contains information of users in a social network. This social network has several business clients which can post ads on it. One of the clients has a car company which has just launched a luxury SUV for a ridiculous price. Build a Bernoulli Naïve Bayes model using this dataset and classify which of the users of the social network are going to purchase this luxury SUV. 1 implies that there was a purchase and 0 implies there wasn’t a purchase.
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Load the dataset
+data = pd.read_csv('NB_Car_Ad.csv')
+
+# Display the first few rows of the dataset to understand its structure
+print(data.head())
+
+
+# Check for missing values in the data (optional)
+print(data.isnull().sum())
+
+# Drop any rows with missing values (if applicable, adjust as needed)
+data = data.dropna()
+
+# Separate features (Age, EstimatedSalary) and target (Purchased)
+X = data[['Age', 'EstimatedSalary']]
+y = data['Purchased']
+
+# Encode categorical features if present (for BernoulliNB, features must be binary or 0/1)
+# In this case, we'll assume 'Purchased' is already binary
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Standardize the feature values (BernoulliNB works best with binary or standardized features)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Initialize and train the Bernoulli Naive Bayes classifier
+nb_classifier = BernoulliNB()
+nb_classifier.fit(X_train, y_train)
+# Make predictions on the test set
+y_pred = nb_classifier.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy * 100:.2f}%')
+
+# Print the classification report and confusion matrix
+print("Classification Report:\n", classification_report(y_test, y_pred))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+#### Problem Statement : 3)
+In this case study, you have been given Twitter data collected from an anonymous twitter handle. With the help of a Naïve Bayes model, predict if a given tweet about a real disaster is real or fake.
+        1 = real tweet and 0 = fake tweet
+
+# Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, classification_report
+
+# Load the dataset
+file_path = 'Disaster_tweets_NB.csv'  # Adjust file path as needed
+tweets_df = pd.read_csv(file_path)
+
+# Drop rows with missing target values, if any
+tweets_df.dropna(subset=['target'], inplace=True)
+
+# Separate the features and target variable
+X = tweets_df['text']  # Tweet text
+y = tweets_df['target']  # Real or fake tweet label
+
+# Split the data into training and testing sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Convert text data to numerical data using CountVectorizer
+vectorizer = CountVectorizer(stop_words='english')
+X_train_counts = vectorizer.fit_transform(X_train)
+X_test_counts = vectorizer.transform(X_test)
+
+# Initialize and train the Naïve Bayes model
+nb_model = MultinomialNB()
+nb_model.fit(X_train_counts, y_train)
+# Make predictions on the test set
+y_pred = nb_model.predict(X_test_counts)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+classification_rep = classification_report(y_test, y_pred)
+
+# Print the results
+print("Accuracy:", accuracy)
+print("\nClassification Report:\n", classification_rep)
+
