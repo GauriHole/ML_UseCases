@@ -1,0 +1,108 @@
+#### Problem 1: Glass Manufacturing Plant
+#### Business Objective:
+The glass manufacturing plant wants to automate the classification of glass types based on their composition (i.e., different earth elements). This will reduce manual effort and ensure efficiency in categorizing glass materials for various customer requirements.
+
+#### Business Constraints:
+The model needs to classify glass types accurately to prevent errors in production.
+Limited labeled data might restrict the precision of the model.
+The company requires real-time prediction for efficient production.
+
+#### Benefits:
+Automation will speed up the classification process and reduce human errors.
+The model can quickly adapt to new materials, improving scalability.
+Consistent quality of glass materials can be ensured, resulting in higher customer satisfaction.
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.model_selection import cross_val_score
+# Sample data (for demonstration purposes)
+data = pd.read_csv("glass.csv")
+data.head(5)
+# Features and target
+X = data.drop('Type', axis=1)  # All columns except 'Type' are features
+y = data['Type']
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+
+# Feature scaling
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# KNN Classifier
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train_scaled, y_train)
+
+# Predicting and evaluating
+y_pred = knn.predict(X_test_scaled)
+accuracy = accuracy_score(y_test, y_pred)
+
+# Cross-validation
+cv_scores = cross_val_score(knn, X_train_scaled, y_train, cv=5)
+
+# Output
+print(f"Model Accuracy: {accuracy}")
+print(f"Cross-validation Scores: {cv_scores}\n")
+print(classification_report(y_test, y_pred))
+
+#### Problem 2: National Zoopark
+#### Business Objective:
+The National Zoopark aims to automate the segregation of animals based on different attributes. This classification will allow them to manage animals better and improve conservation efforts.
+
+#### Business Constraints:
+The system needs to handle diverse attributes for various animals.
+The classification accuracy must be high to avoid incorrect segregation, which may lead to operational issues in animal management.
+
+#### Benefits:
+Automation reduces manual labor, freeing up staff for more critical conservation tasks.
+Efficient animal management ensures proper care and resources are allocated to each species.
+Insights from the classification model can help in future research or conservation efforts.
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.model_selection import cross_val_score
+
+# Load the dataset
+data = pd.read_csv("Zoo.csv")  # Replace with your actual file path
+
+# Verify the type of `data`
+print(type(data))  # This should output <class 'pandas.core.frame.DataFrame'>
+
+# Check the first few rows of the dataset
+print(data.head())
+
+data = data.rename(columns={'animal name': 'animal_name'})
+data.columns
+# Features and target
+X = data.drop(['animal_name', 'type'], axis=1)  # 'animal_name' is not a feature, 'type' is the target
+y = data['type']
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Feature scaling
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+# KNN Classifier
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train_scaled, y_train)
+
+# Predicting and evaluating
+y_pred = knn.predict(X_test_scaled)
+accuracy = accuracy_score(y_test, y_pred)
+
+# Cross-validation
+cv_scores = cross_val_score(knn, X_train_scaled, y_train, cv=5)
+
+# Output
+print(f"Model Accuracy: {accuracy}")
+print(f"Cross-validation Scores: {cv_scores}\n ")
+print(classification_report(y_test, y_pred))
+
