@@ -7,8 +7,9 @@ Welcome to the **Machine Learning Model Use Cases** repository! This repository 
 3. **Decision Tree**: A supervised algorithm for classification and regression. It uses a tree structure where internal nodes represent features, branches represent decisions, and leaves represent outcomes.
    
 <img src="https://media.licdn.com/dms/image/v2/C4E12AQGU1EIJX474rA/article-inline_image-shrink_1000_1488/article-inline_image-shrink_1000_1488/0/1624258871908?e=2147483647&v=beta&t=7292bXd08eILZQVBDx5uQ8JX8MXb7mcLcscgzwZxWYM" alt="Example Image" width="400">
-**Features**
-- Comprehensive use cases for supervised and unsupervised learning algorithms.
-- Well-documented code for ease of understanding and customization.
-- Examples include classification, regression, clustering, and more.
-- Visualizations and performance metrics for better insights.
+
+# **Features**
+1. Comprehensive use cases for supervised and unsupervised learning algorithms.
+2.  Well-documented code for ease of understanding and customization.
+3. Examples include classification, regression, clustering, and more.
+4. Visualizations and performance metrics for better insights.
