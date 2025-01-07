@@ -1,0 +1,283 @@
+#### Problem 1: Cloth Manufacturing Company (Predicting Sales)
+# Import necessary libraries for handling NaN values
+from sklearn.impute import SimpleImputer
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+
+# Step 1: Load the dataset
+data = pd.read_csv('Company_Data.csv')
+data.head(5)
+# Import necessary libraries for handling NaN values
+from sklearn.impute import SimpleImputer
+
+# Step 1: Load the dataset
+data = pd.read_csv('Company_Data.csv')
+
+# Step 2: Convert Sales into categorical (e.g., High and Low Sales)
+# Let's assume the threshold to define "High" sales is >= 8
+data['Sales_Category'] = pd.cut(data['Sales'], bins=[0, 8, data['Sales'].max()], labels=['Low', 'High'])
+
+# Step 3: Encode categorical variables
+# Using LabelEncoder for ShelveLoc, Urban, and US
+le = LabelEncoder()
+data['ShelveLoc'] = le.fit_transform(data['ShelveLoc'])
+data['Urban'] = le.fit_transform(data['Urban'])
+data['US'] = le.fit_transform(data['US'])
+
+# Step 4: Handle missing values using SimpleImputer
+# Impute numerical columns with the median
+numerical_cols = ['CompPrice', 'Income', 'Advertising', 'Population', 'Price', 'Age', 'Education']
+imputer_num = SimpleImputer(strategy='median')
+data[numerical_cols] = imputer_num.fit_transform(data[numerical_cols])
+
+# Impute categorical columns with the mode
+categorical_cols = ['ShelveLoc', 'Urban', 'US']
+imputer_cat = SimpleImputer(strategy='most_frequent')
+data[categorical_cols] = imputer_cat.fit_transform(data[categorical_cols])
+
+# Step 5: Define features (X) and target (y)
+X = data.drop(['Sales', 'Sales_Category'], axis=1)  # Drop original Sales and target Sales_cat
+y = data['Sales_Category']  # Target variable is the categorical Sales
+
+# Step 6: Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 7: Decision Tree Model
+dt_model = DecisionTreeClassifier(random_state=42)
+dt_model.fit(X_train, y_train)
+y_pred_dt = dt_model.predict(X_test)
+
+# Evaluate Decision Tree Model
+print("Decision Tree Classification Report:")
+print(classification_report(y_test, y_pred_dt))
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred_dt))
+# Step 8: Random Forest Model
+rf_model = RandomForestClassifier(random_state=42)
+rf_model.fit(X_train, y_train)
+y_pred_rf = rf_model.predict(X_test)
+
+# Evaluate Random Forest Model
+print("\nRandom Forest Classification Report:")
+print(classification_report(y_test, y_pred_rf))
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred_rf))
+#### Problem 2: Diabetes Data (Predicting Outcome)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import LabelEncoder
+
+# Load the dataset
+df = 'Diabetes.csv'
+diabetes_data = pd.read_csv(df)
+
+# Display the first few rows of the dataset to understand its structure
+diabetes_data.head(5)
+
+diabetes_data.columns.values[8] = 'Class_variable'
+diabetes_data.columns
+# Prepare the data
+X = diabetes_data.drop(columns=['Class_variable'])  # Features
+y = diabetes_data['Class_variable']  # Target
+
+# Encode the target variable (YES -> 1, NO -> 0)
+label_encoder = LabelEncoder()
+y = label_encoder.fit_transform(y)
+
+# Split the data into training and testing sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize the models
+random_forest_model = RandomForestClassifier(random_state=42)
+decision_tree_model = DecisionTreeClassifier(random_state=42)
+
+# Train the Random Forest model
+random_forest_model.fit(X_train, y_train)
+
+# Train the Decision Tree model
+decision_tree_model.fit(X_train, y_train)
+
+# Make predictions on the test set
+rf_predictions = random_forest_model.predict(X_test)
+dt_predictions = decision_tree_model.predict(X_test)
+# Calculate the accuracy of both models
+rf_accuracy = accuracy_score(y_test, rf_predictions)
+dt_accuracy = accuracy_score(y_test, dt_predictions)
+
+print("Random Forest Accuracy",rf_accuracy)
+print("Decision Tree Accuracy",dt_accuracy)
+
+#### Problem 3: Fraud Detection
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import classification_report, confusion_matrix
+
+# Load dataset
+df = pd.read_csv('Fraud_check.csv')
+df.head(5)
+# Step 2: Create a categorical target variable based on Taxable Income
+# Let's assume income > 50,000 is 'High' and otherwise 'Low'
+df['Taxable_Income_Class'] = pd.cut(df['Taxable.Income'], bins=[0, 50000, df['Taxable.Income'].max()], labels=['Low', 'High'])
+
+# Step 3: Encode categorical features
+le = LabelEncoder()
+df['Undergrad'] = le.fit_transform(df['Undergrad'])
+df['Marital.Status'] = le.fit_transform(df['Marital.Status'])
+df['Urban'] = le.fit_transform(df['Urban'])
+
+# Step 4: Define the feature matrix (X) and target vector (y)
+X = df.drop(['Taxable.Income', 'Taxable_Income_Class'], axis=1)
+y = df['Taxable_Income_Class']
+# Step 5: Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# Step 6: Decision Tree Classifier
+dt_model = DecisionTreeClassifier(random_state=40)
+dt_model.fit(X_train, y_train)
+
+# Step 7: Make predictions and evaluate the model
+y_pred = dt_model.predict(X_test)
+
+print("Classification Report:")
+print(classification_report(y_test, y_pred))
+
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import classification_report, accuracy_score
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Load dataset
+df = pd.read_csv('Fraud_check.csv')
+df.head(5)
+
+# 1. Encoding categorical variables using One-Hot Encoding
+df_encoded = pd.get_dummies(df, columns=['Undergrad', 'Marital.Status', 'Urban'], drop_first=True)
+
+# 2. Binning continuous variables (Work.Experience and Taxable.Income)
+df_encoded['Work.Exp.Binned'] = pd.cut(df_encoded['Work.Experience'], bins=[0, 5, 15, 30, 50], 
+                                       labels=['Beginner', 'Intermediate', 'Experienced', 'Expert'])
+
+# Replace binned categories with dummy variables
+work_exp_dummies = pd.get_dummies(df_encoded['Work.Exp.Binned'], prefix='Work.Exp', drop_first=True)
+df_encoded = pd.concat([df_encoded, work_exp_dummies], axis=1)
+
+# Binning Taxable.Income
+df_encoded['Income.Binned'] = pd.cut(df_encoded['Taxable.Income'], bins=[0, 40000, 70000, 90000], 
+                                     labels=['Low', 'Medium', 'High'])
+
+# Encode the 'Income.Binned' using get_dummies
+income_binned_dummies = pd.get_dummies(df_encoded['Income.Binned'], prefix='Income', drop_first=True)
+df_encoded = pd.concat([df_encoded, income_binned_dummies], axis=1)
+
+# 3. Creating interaction features (Income per Work Experience)
+df_encoded['Income_per_Experience'] = df_encoded['Taxable.Income'] / (df_encoded['Work.Experience'] + 1)
+
+# 4. Feature Selection (Dropping less relevant features)
+df_final = df_encoded.drop(columns=['Taxable.Income', 'Work.Experience', 'Work.Exp.Binned', 'Income.Binned'])
+
+# Splitting the data into training and testing sets
+X = df_final.drop(columns=['Income_Medium', 'Income_High'])  # Features (dropping 'Income_Binned')
+y = df_final['Income_Medium']  # Target (Taxable Income category)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Decision Tree Model
+model = DecisionTreeClassifier(random_state=42)
+
+# Train the model
+model.fit(X_train, y_train)
+
+# Predict on test data
+y_pred = model.predict(X_test)
+
+# Evaluate model performance
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
+# Optional: Checking feature importance
+importance = model.feature_importances_
+feature_names = X_train.columns
+
+# Displaying feature importance
+sorted_idx = np.argsort(importance)
+plt.barh(range(len(importance)), importance[sorted_idx], align='center')
+plt.yticks(np.arange(len(importance)), np.array(feature_names)[sorted_idx])
+plt.xlabel("Feature Importance")
+plt.show()
+
+#### Problem 4: Recruitment Domain (Salary Prediction)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import accuracy_score, classification_report
+
+# Load dataset
+df = pd.read_csv('HR_DT.csv')
+# Display column names to verify before renaming
+print("Original Columns:", df.columns)
+
+
+# Rename columns for easier reference
+df.rename(columns={
+    'Position of the employee': 'Position',
+    'no of Years of Experience of employee': 'Experience'
+}, inplace=True)
+df.columns.values[2] = 'Monthly_Income'
+# Verify after renaming
+print("Renamed Columns:", df.columns)
+# Encode categorical column 'Position'
+label_encoder = LabelEncoder()
+df['Position_encoded'] = label_encoder.fit_transform(df['Position'])
+
+# Features and target variable
+X = df[['Position_encoded', 'Experience']]  # Features
+y = df['Monthly_Income']  # Target
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Random Forest Regressor Model
+rf_regressor = RandomForestRegressor()
+rf_regressor.fit(X_train, y_train)
+
+# Predict on test data
+y_pred_rf = rf_regressor.predict(X_test)
+
+# Evaluate the Random Forest Regressor
+r2 = r2_score(y_test, y_pred_rf)
+
+# Decision Tree Regressor Model
+dt_regressor = DecisionTreeRegressor()
+dt_regressor.fit(X_train, y_train)
+
+# Predict on test data
+y_pred_dt = dt_regressor.predict(X_test)
+
+# Evaluate the Decision Tree Regressor
+r2_dt = r2_score(y_test, y_pred_dt)
+
+print("\nRandom Forest Model Accuracy :", r2)
+print("Decision Tree Model Accuracy:", r2_dt)
+
+
+
+
+
