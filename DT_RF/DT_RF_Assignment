@@ -1,4 +1,13 @@
 #### Problem 1: Cloth Manufacturing Company (Predicting Sales)
+
+A cloth manufacturing company is interested to know about the different attributes contributing to high sales. Build a decision tree & random forest model with Sales as target variable (first convert it into categorical variable).
+
+### Business Objective
+The main goal is to understand the attributes contributing to high sales and build a predictive model to categorize sales based on these attributes.
+
+### Constraints
+Data Balance: Sales data may need preprocessing to convert it into a categorical variable (high/low), depending on distribution.
+
 # Import necessary libraries for handling NaN values
 from sklearn.impute import SimpleImputer
 import pandas as pd
@@ -9,65 +18,69 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 
-# Step 1: Load the dataset
-data = pd.read_csv('Company_Data.csv')
-data.head(5)
-# Import necessary libraries for handling NaN values
-from sklearn.impute import SimpleImputer
 
 # Step 1: Load the dataset
-data = pd.read_csv('Company_Data.csv')
+df=pd.read_csv("Company_Data.csv")
+df.head()
 
-# Step 2: Convert Sales into categorical (e.g., High and Low Sales)
-# Let's assume the threshold to define "High" sales is >= 8
-data['Sales_Category'] = pd.cut(data['Sales'], bins=[0, 8, data['Sales'].max()], labels=['Low', 'High'])
+sales_median=df['Sales'].median()
+sales_median
 
-# Step 3: Encode categorical variables
-# Using LabelEncoder for ShelveLoc, Urban, and US
-le = LabelEncoder()
-data['ShelveLoc'] = le.fit_transform(data['ShelveLoc'])
-data['Urban'] = le.fit_transform(data['Urban'])
-data['US'] = le.fit_transform(data['US'])
 
-# Step 4: Handle missing values using SimpleImputer
-# Impute numerical columns with the median
-numerical_cols = ['CompPrice', 'Income', 'Advertising', 'Population', 'Price', 'Age', 'Education']
-imputer_num = SimpleImputer(strategy='median')
-data[numerical_cols] = imputer_num.fit_transform(data[numerical_cols])
+df['Sales_category']=np.where(df['Sales']>=sales_median ,'High','Low')
+df['Sales_category'].value_counts()
+df.head()
 
-# Impute categorical columns with the mode
-categorical_cols = ['ShelveLoc', 'Urban', 'US']
-imputer_cat = SimpleImputer(strategy='most_frequent')
-data[categorical_cols] = imputer_cat.fit_transform(data[categorical_cols])
 
-# Step 5: Define features (X) and target (y)
-X = data.drop(['Sales', 'Sales_Category'], axis=1)  # Drop original Sales and target Sales_cat
-y = data['Sales_Category']  # Target variable is the categorical Sales
+df = df.drop('Sales', axis=1)  
+df.head()
 
-# Step 6: Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+from sklearn.preprocessing import LabelEncoder
+label_encoder = LabelEncoder()
+df['ShelveLoc'] = label_encoder.fit_transform(df['ShelveLoc'])
+df['Urban'] = label_encoder.fit_transform(df['Urban'])
+df['US'] = label_encoder.fit_transform(df['US'])
+df['Sales_category'] = label_encoder.fit_transform(df['Sales_category'])
+### split the data
+X = df.drop('Sales_category', axis=1)
+y = df['Sales_category']
 
-# Step 7: Decision Tree Model
-dt_model = DecisionTreeClassifier(random_state=42)
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+dt_model = DecisionTreeClassifier(max_depth=5, random_state=42)
 dt_model.fit(X_train, y_train)
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 y_pred_dt = dt_model.predict(X_test)
+print("\nDecision Tree Model - Accuracy:", accuracy_score(y_test, y_pred_dt))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_dt))
+print("Classification Report:\n", classification_report(y_test, y_pred_dt))
 
-# Evaluate Decision Tree Model
-print("Decision Tree Classification Report:")
-print(classification_report(y_test, y_pred_dt))
-print("Confusion Matrix:")
-print(confusion_matrix(y_test, y_pred_dt))
-# Step 8: Random Forest Model
-rf_model = RandomForestClassifier(random_state=42)
+rf_model = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)
 rf_model.fit(X_train, y_train)
-y_pred_rf = rf_model.predict(X_test)
 
-# Evaluate Random Forest Model
-print("\nRandom Forest Classification Report:")
-print(classification_report(y_test, y_pred_rf))
-print("Confusion Matrix:")
-print(confusion_matrix(y_test, y_pred_rf))
+y_pred_rf = rf_model.predict(X_test)
+print("\nRandom Forest Model - Accuracy:", accuracy_score(y_test, y_pred_rf))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_rf))
+print("Classification Report:\n", classification_report(y_test, y_pred_rf))
+
 #### Problem 2: Diabetes Data (Predicting Outcome)
+
+### Business Objective:
+To predict whether a person is likely to develop diabetes based on a set of input features such as age, gender, 
+medical history, and lifestyle habits. This prediction can help healthcare providers intervene early.
+
+### Business Constraints:
+* Data Quality: Incomplete or inaccurate data can reduce prediction accuracy.
+* Regulatory Compliance: Predictions should comply with healthcare regulations (e.g., HIPAA) to protect patient privacy.
+* Model Interpretability: Models need to be interpretable so that healthcare professionals can trust and understand the outcomes.
+
+### Benefits:
+* Improved Patient Outcomes: Early detection of at-risk individuals can help reduce the incidence of diabetes through timely interventions.
+* Better Resource Allocation: Healthcare systems can allocate resources more effectively, focusing on high-risk populations.
+
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -82,8 +95,10 @@ diabetes_data = pd.read_csv(df)
 # Display the first few rows of the dataset to understand its structure
 diabetes_data.head(5)
 
+
 diabetes_data.columns.values[8] = 'Class_variable'
 diabetes_data.columns
+
 # Prepare the data
 X = diabetes_data.drop(columns=['Class_variable'])  # Features
 y = diabetes_data['Class_variable']  # Target
@@ -94,6 +109,7 @@ y = label_encoder.fit_transform(y)
 
 # Split the data into training and testing sets (80% train, 20% test)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
 
 # Initialize the models
 random_forest_model = RandomForestClassifier(random_state=42)
@@ -108,6 +124,7 @@ decision_tree_model.fit(X_train, y_train)
 # Make predictions on the test set
 rf_predictions = random_forest_model.predict(X_test)
 dt_predictions = decision_tree_model.predict(X_test)
+
 # Calculate the accuracy of both models
 rf_accuracy = accuracy_score(y_test, rf_predictions)
 dt_accuracy = accuracy_score(y_test, dt_predictions)
@@ -115,7 +132,23 @@ dt_accuracy = accuracy_score(y_test, dt_predictions)
 print("Random Forest Accuracy",rf_accuracy)
 print("Decision Tree Accuracy",dt_accuracy)
 
+
 #### Problem 3: Fraud Detection
+
+#### Business Objective:
+To identify and prevent fraudulent activities in financial transactions, ensuring that fraudulent transactions are flagged in real-time or near-real-time, protecting both businesses and consumers from financial losses.
+
+#### Business Constraints:
+* Data Privacy: Financial data must be handled securely and in compliance with privacy laws (e.g., GDPR, PCI DSS).
+* Data Imbalance: Fraudulent transactions are often much fewer than legitimate ones, making it difficult to train models effectively.
+* Real-Time Processing: The system must be able to process large amounts of data in real-time to detect fraud during transactions.
+
+#### Benefits:
+* Reduced Financial Losses: Detecting fraudulent activities in real-time minimizes the financial damage from fraud.
+* Enhanced Customer Trust: Consumers will feel more secure when they know that their transactions are being monitored for fraud.
+* Operational Efficiency: Automated fraud detection reduces the need for manual reviews, speeding up operations and reducing labor costs.
+
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
@@ -125,6 +158,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 # Load dataset
 df = pd.read_csv('Fraud_check.csv')
 df.head(5)
+
 # Step 2: Create a categorical target variable based on Taxable Income
 # Let's assume income > 50,000 is 'High' and otherwise 'Low'
 df['Taxable_Income_Class'] = pd.cut(df['Taxable.Income'], bins=[0, 50000, df['Taxable.Income'].max()], labels=['Low', 'High'])
@@ -135,11 +169,14 @@ df['Undergrad'] = le.fit_transform(df['Undergrad'])
 df['Marital.Status'] = le.fit_transform(df['Marital.Status'])
 df['Urban'] = le.fit_transform(df['Urban'])
 
+
 # Step 4: Define the feature matrix (X) and target vector (y)
 X = df.drop(['Taxable.Income', 'Taxable_Income_Class'], axis=1)
 y = df['Taxable_Income_Class']
+
 # Step 5: Split the dataset into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
 
 # Step 6: Decision Tree Classifier
 dt_model = DecisionTreeClassifier(random_state=40)
@@ -153,6 +190,7 @@ print(classification_report(y_test, y_pred))
 
 print("Confusion Matrix:")
 print(confusion_matrix(y_test, y_pred))
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
@@ -220,7 +258,23 @@ plt.yticks(np.arange(len(importance)), np.array(feature_names)[sorted_idx])
 plt.xlabel("Feature Importance")
 plt.show()
 
+
 #### Problem 4: Recruitment Domain (Salary Prediction)
+
+#### Business Objective:
+To predict the expected salary of a candidate based on their qualifications, experience, job market conditions, and other relevant factors, helping companies make competitive offers and aiding job seekers in negotiating salaries.
+
+#### Business Constraints:
+* Data Quality and Availability: Salary data may be incomplete or not representative of all industries, potentially leading to inaccurate predictions.
+* Geographic Variation: Salaries can vary significantly by region, requiring models to take location into account.
+* Market Dynamics: Salary expectations may change rapidly due to market conditions (e.g., inflation, job demand).
+
+#### Benefits:
+* Improved Recruitment Efficiency: Companies can make informed salary offers, reducing time-to-hire and increasing the likelihood of candidate acceptance.
+* Attractive Job Offers: Candidates are more likely to accept offers that meet their salary expectations, improving employee retention.
+* Market Insights: Organizations can better understand compensation trends in the industry and adjust their compensation strategies accordingly.
+
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -235,6 +289,7 @@ df = pd.read_csv('HR_DT.csv')
 print("Original Columns:", df.columns)
 
 
+
 # Rename columns for easier reference
 df.rename(columns={
     'Position of the employee': 'Position',
@@ -243,6 +298,7 @@ df.rename(columns={
 df.columns.values[2] = 'Monthly_Income'
 # Verify after renaming
 print("Renamed Columns:", df.columns)
+
 # Encode categorical column 'Position'
 label_encoder = LabelEncoder()
 df['Position_encoded'] = label_encoder.fit_transform(df['Position'])
@@ -253,6 +309,7 @@ y = df['Monthly_Income']  # Target
 
 # Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
 
 # Random Forest Regressor Model
 rf_regressor = RandomForestRegressor()
@@ -276,8 +333,4 @@ r2_dt = r2_score(y_test, y_pred_dt)
 
 print("\nRandom Forest Model Accuracy :", r2)
 print("Decision Tree Model Accuracy:", r2_dt)
-
-
-
-
 
